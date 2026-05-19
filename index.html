@@ -1,13 +1,8 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>Calendario</title>
-</head>
-
+<html>
 <body>
 
-<h2>Calendario</h2>
+<h2>Calendariosssss232</h2>
 
 <button onclick="loadData()">Cargar datos</button>
 
@@ -17,9 +12,10 @@
 
 async function loadData() {
 
-    let url = "https://telefonicacorp.sharepoint.com/sites/MOEVE.TMEZC/Shared%20Documents/General/Contactos%20y%20disponibilidad/calendario.json";
-
     try {
+
+        let url = "https://telefonicacorp.sharepoint.com/sites/MOEVE.TMEZC/Shared%20Documents/General/Contactos%20y%20disponibilidad/calendario.json";
+
         let res = await fetch(url);
         let data = await res.json();
 
@@ -27,20 +23,21 @@ async function loadData() {
 
         let html = "<h3>Datos:</h3>";
 
-        items.forEach(function(item) {
-            html += "<div>Usuario: " + item.Title +
+        items.forEach(item => {
+            html += "Usuario: " + item.Title +
                     " | Día: " + item.Dia +
-                    " | Estado: " + item.Estado + "</div>";
+                    " | Estado: " + item.Estado + "<br>";
         });
 
         document.getElementById("result").innerHTML = html;
 
     } catch (err) {
-        console.error(err);
-        alert("Error cargando datos");
+
+        console.error("ERROR REAL:", err);
+
+        alert("Error cargando datos (abre F12 → Console)");
     }
 }
-
 </script>
 
 </body>
