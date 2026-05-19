@@ -1,3 +1,20 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Calendario</title>
+</head>
+
+<body>
+
+<h2>Calendario</h2>
+
+<button onclick="loadData()">Cargar datos</button>
+
+<div id="result"></div>
+
+<script>
+
 async function loadData() {
 
     let url = "https://telefonicacorp.sharepoint.com/sites/MOEVE.TMEZC/_layouts/15/download.aspx?UniqueId=107bcc199efa49118ed42d1c6ce40488&e=CWJv2u";
@@ -7,7 +24,6 @@ async function loadData() {
         let res = await fetch(url);
         let data = await res.json();
 
-        // 🔥 AQUÍ ESTÁ LA CLAVE
         let items = data.body.value;
 
         let html = "<h3>Datos:</h3>";
@@ -29,3 +45,8 @@ async function loadData() {
         alert("Error cargando datos");
     }
 }
+
+</script>
+
+</body>
+</html>
