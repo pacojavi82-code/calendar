@@ -2,172 +2,64 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Calendario Moeve SharePoint</title>
+<title>Calendario Guardias</title>
 
 <style>
-body {font-family:Segoe UI;background:#f5f7fa;margin:0;}
-.header {background:#003245;color:white;padding:15px;font-size:20px;}
-.menu {padding:10px;}
-button {margin:5px;padding:8px;background:#0078d4;color:white;border:none;border-radius:4px;cursor:pointer;}
-table {border-collapse:collapse;width:100%;}
-td,th {border:1px solid #ddd;padding:5px;text-align:center;font-size:11px;}
-.v {background:#ffb74d;}
-.g {background:#4dd0e1;}
+body { font-family: Arial; }
+button { margin: 10px; padding:10px; }
 </style>
 
 </head>
 
 <body>
 
-<div class="header">Calendario Guardias (SharePoint)</div>
+<h2>Test conexión SharePoint</h2>
 
-<div class="menu">
-<button onclick="loadGroup('SGC')">SGC</button>
-<button onclick="loadGroup('APP')">APP/INFRA</button>
-</div>
+<button onclick="loadData()">Cargar datos</button>
 
-<div>
-Año:
-<select onchange="changeYear(this.value)">
-<option>2026</option>
-<option>2027</option>
-<option>2028</option>
-<option>2029</option>
-</select>
-</div>
-
-<div id="calendar"></div>
-
-<input type="hidden" id="__REQUESTDIGEST">
+<div id="result"></div>
 
 <script>
 
-// ================= CONFIG =================
+// ========= CONFIG =========
 const siteUrl = "https://telefonicacorp.sharepoint.com/sites/MOEVE.TMEZC";
 const listName = "CalendarioGuardias";
 
-let currentYear = 2026;
-let currentGroup = "";
-
-let cache = {};
-
-// ================= GET DIGEST =================
-async function getDigest() {
-    let res = await fetch(`${siteUrl}/_api/contextinfo`, {
-        method: "POST",
-        headers: { "Accept": "application/json;odata=verbose" }
-    });
-    let data = await res.json();
-    document.getElementById("__REQUESTDIGEST").value =
-        data.d.GetContextWebInformation.FormDigestValue;
-}
-
-// ================= LOAD DATA =================
+// ========= LOAD =========
 async function loadData() {
 
-    let url = `${siteUrl}/_api/web/lists/getbytitle('${listName}')/items?$top=5000`;
+    let url = `${siteUrl}/_api/web/lists/getbytitle('${listName}')/items?$top=10`;
 
-    let res = await fetch(url, {
-        headers: { "Accept": "application/json;odata=verbose" }
-    });
+    try {
 
-    let data = await res.json();
+        let res = await fetch(url, {
+            method: "GET",
+            credentials: "include",  // 🔥 CLAVE
+            headers: {
+                "Accept": "application/json;odata=verbose"
+            }
+        });
 
-    cache = {};
+        let data = await res.json();
 
-    data.d.results.forEach(i => {
-        let key = `${i.Grupo}-${i.A_x00f1_o}-${i.Mes}-${i.Title}-${i.Dia}`;
-        cache[key] = i.Estado;
-    });
-}
+        let html = "<h3>Datos:</h3>";
 
-// ================= SAVE DATA =================
-async function saveData(grupo, usuario, mes, dia, estado) {
+        data.d.results.forEach(item => {
+            html += `
+                <div>
+                    Usuario: ${item.Title} |
+                    Día: ${item.Dia} |
+                    Estado: ${item.Estado}
+                </div>
+            `;
+        });
 
-    let url = `${siteUrl}/_api/web/lists/getbytitle('${listName}')/items`;
+        document.getElementById("result").innerHTML = html;
 
-    await fetch(url, {
-        method: "POST",
-        headers: {
-            "Accept": "application/json;odata=verbose",
-            "Content-Type": "application/json;odata=verbose",
-            "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value
-        },
-        body: JSON.stringify({
-            __metadata: { type: "SP.Data.CalendarioGuardiasListItem" },
-            Title: usuario,
-            Grupo: grupo,
-            A_x00f1_o: currentYear,
-            Mes: mes,
-            Dia: dia,
-            Estado: estado
-        })
-    });
-}
-
-// ================= CALENDAR =================
-function daysInMonth(y, m) {
-    return new Date(y, m + 1, 0).getDate();
-}
-
-// ================= LOAD GROUP =================
-async function loadGroup(group) {
-
-    currentGroup = group;
-
-    await getDigest();
-    await loadData();
-
-    let users = ["FRAN","DANI","GUILLE"]; // puedes cambiar luego
-
-    let days = daysInMonth(currentYear, 4); // mayo ejemplo
-
-    let html = "<table><tr><th>Persona</th>";
-
-    for (let d = 1; d <= days; d++) {
-        html += `<th>${d}</th>`;
+    } catch (err) {
+        console.error(err);
+        alert("Error cargando datos");
     }
-
-    html += "</tr>";
-
-    users.forEach(u => {
-
-        html += `<tr><td>${u}</td>`;
-
-        for (let d = 1; d <= days; d++) {
-
-            let key = `${group}-${currentYear}-4-${u}-${d}`;
-            let val = cache[key] || "";
-
-            html += `<td onclick="toggle('${group}','${u}',4,${d},this)" class="${val.toLowerCase()}">${val}</td>`;
-        }
-
-        html += "</tr>";
-    });
-
-    html += "</table>";
-
-    document.getElementById("calendar").innerHTML = html;
-}
-
-// ================= TOGGLE =================
-async function toggle(group, user, mes, dia, el) {
-
-    let current = el.innerText;
-    let next = "";
-
-    if (current === "") next = "V";
-    else if (current === "V") next = "G";
-    else next = "";
-
-    await saveData(group, user, mes, dia, next);
-    loadGroup(group);
-}
-
-// ================= YEAR =================
-function changeYear(y) {
-    currentYear = parseInt(y);
-    if (currentGroup) loadGroup(currentGroup);
 }
 
 </script>
