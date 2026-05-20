@@ -1,0 +1,26 @@
+{
+  "body": {
+    "value": [
+      {
+        "Title": "Usuario1",
+        "Dia": 3,
+        "Estado": "V"
+      },
+      {
+        "Title": "Usuario1",
+        "Dia": 4,
+        "Estado": "G"
+      },
+      {
+        "Title": "Usuario2",
+        "Dia": 5,
+        "Estado": "V"
+      },
+      {
+        "Title": "Usuario3",
+        "Dia": 10,
+        "Estado": "G"
+      }
+    ]
+  }
+}
